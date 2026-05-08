@@ -1,0 +1,199 @@
+# ⭐ **IMPLEMENTATION – PART A: S3 TRIGGER**
+
+---
+
+## **Step 1: Create S3 Bucket**
+
+1. Go to AWS Console
+2. Open **Amazon S3**
+3. Click **Create bucket**
+4. Enter bucket name (must be unique globally)
+
+   * Example: `my-upload-bucket-123`
+5. Choose region
+6. Keep default settings
+7. Click **Create bucket**
+
+---
+
+## **Step 2: Create IAM Role (IMPORTANT – MISSING STEP)**
+
+Lambda needs permission to access S3.
+
+1. Go to **IAM → Roles**
+2. Click **Create Role**
+3. Select:
+
+   * Trusted entity: AWS Service
+   * Use case: Lambda
+4. Attach policies:
+
+   * `AmazonS3ReadOnlyAccess`
+   * `AWSLambdaBasicExecutionRole`
+5. Create role
+6. Name it: `LambdaS3Role`
+
+---
+
+## **Step 3: Create Lambda Function**
+
+1. Go to **AWS Lambda**
+2. Click **Create Function**
+3. Choose:
+
+   * Author from scratch
+4. Function name:
+
+   * `S3TriggerFunction`
+5. Runtime:
+
+   * Python 3.x
+6. Permissions:
+
+   * Choose existing role → `LambdaS3Role`
+7. Click **Create function**
+
+---
+
+## **Step 4: Write Lambda Code**
+
+import json
+
+def lambda_handler(event, context):
+    print("Event Triggered:", json.dumps(event))
+    
+    for record in event['Records']:
+        bucket = record['s3']['bucket']['name']
+        file_name = record['s3']['object']['key']
+        
+        print(f"File uploaded: {file_name} in bucket: {bucket}")
+    
+    return {
+        'statusCode': 200,
+        'body': 'S3 Trigger Executed Successfully'
+    }
+---
+
+## **Step 5: Add S3 Trigger**
+
+1. Open Lambda function
+2. Click **Add Trigger**
+3. Select:
+
+   * Service: S3
+4. Choose your bucket
+5. Event type:
+
+   * **PUT (Object Created)**
+6. Enable trigger
+7. Save
+
+---
+
+## **Step 6: Test S3 Trigger**
+
+1. Upload any file (image/text/pdf) to S3 bucket
+2. Go to Lambda → Monitor → Logs
+3. Open **CloudWatch Logs**
+4. Check output:
+
+   * File name
+   * Bucket name
+
+---
+
+# ⭐ **IMPLEMENTATION – PART B: HTTP TRIGGER (API Gateway)**
+
+## **Step 1: Create Lambda Function**
+
+1. Go to AWS Lambda
+2. Click Create Function
+3. Name:
+
+   * `HttpTriggerFunction`
+4. Runtime:
+
+   * Python 3.x
+5. Attach same IAM role or basic execution role
+6. Create function
+
+---
+
+## **Step 2: Write Lambda Code**
+
+def lambda_handler(event, context):
+    name = event.get('queryStringParameters', {}).get('name', 'Guest')
+    
+    return {
+        'statusCode': 200,
+        'body': f"Hello, {name}! Welcome to Lambda HTTP trigger."
+    }
+
+---
+
+## **Step 3: Create API Gateway**
+
+1. Go to **API Gateway**
+2. Click **Create API**
+3. Choose:
+
+   * HTTP API
+4. Click Build
+
+---
+
+## **Step 4: Integrate Lambda**
+
+1. Click **Add Integration**
+2. Select:
+
+   * Lambda Function
+3. Choose:
+
+   * `HttpTriggerFunction`
+4. Click Add
+
+---
+
+## **Step 5: Configure Route**
+
+1. Method: **GET**
+2. Resource path: `/hello`
+3. Attach Lambda integration
+
+---
+
+## **Step 6: Deploy API**
+
+1. Click **Deploy**
+2. Create stage:
+
+   * `prod`
+3. Save deployment
+
+---
+
+## **Step 7: Get API Endpoint**
+
+Example:
+
+```
+https://abc123.execute-api.region.amazonaws.com/hello
+```
+
+---
+
+## **Step 8: Test API**
+
+Open browser:
+
+```
+https://your-api-url/hello?name=abc
+```
+
+### Output:
+
+```
+Hello, abc! Welcome to Lambda HTTP trigger.
+```
+

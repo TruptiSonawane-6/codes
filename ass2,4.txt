@@ -1,0 +1,166 @@
+#ass 2
+#!/usr/bin/env python
+
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import util
+
+
+class MainHandler(webapp.RequestHandler):
+    def get(self):
+        self.response.out.write("""
+        <html>
+        <head>
+            <title>Cloud Computing Project</title>
+
+            <style>
+                body {
+                    margin: 0;
+                    font-family: Arial;
+                    background: #f4f8ff;
+                }
+
+                .header {
+                    background: #1e3a8a;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                }
+
+                .container {
+                    width: 80%;
+                    margin: 30px auto;
+                    background: white;
+                    padding: 30px;
+                    border-radius: 12px;
+                    box-shadow: 0px 0px 12px #bbb;
+                }
+
+                h1, h2 {
+                    text-align: center;
+                }
+
+                p {
+                    font-size: 18px;
+                    color: #444;
+                    line-height: 1.6;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+
+                table, th, td {
+                    border: 1px solid #ccc;
+                }
+
+                th {
+                    background: #dbeafe;
+                    padding: 12px;
+                }
+
+                td {
+                    padding: 10px;
+                    text-align: center;
+                }
+
+                .footer {
+                    background: #1e3a8a;
+                    color: white;
+                    text-align: center;
+                    padding: 15px;
+                    margin-top: 30px;
+                }
+            </style>
+        </head>
+
+        <body>
+
+            <div class="header">
+                <h1>Cloud Computing Practical</h1>
+                <h2>Google App Engine Web Application</h2>
+            </div>
+
+            <div class="container">
+                <h2>Hello World Application</h2>
+
+                <p>
+                    This web application is developed using Python on
+                    Google App Engine platform.
+                </p>
+
+                <p>
+                    It demonstrates deployment and execution of a
+                    simple cloud-based web application.
+                </p>
+
+                <table>
+                    <tr>
+                        <th>Assignment</th>
+                        <th>Technology</th>
+                    </tr>
+                    <tr>
+                        <td>Assignment 2</td>
+                        <td>Install GAE + Hello World</td>
+                    </tr>
+                    <tr>
+                        <td>Assignment 3</td>
+                        <td>Launch Web App using GAE</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="footer">
+                Developed for Cloud Computing Lab
+            </div>
+
+        </body>
+        </html>
+        """)
+
+
+def main():
+    application = webapp.WSGIApplication(
+        [('/', MainHandler)],
+        debug=True
+    )
+    util.run_wsgi_app(application)
+
+
+if __name__ == '__main__':
+    main()
+
+#ass 4
+cd Downloads
+
+# CONNECT TO VM1 (SOURCE VM - 16.171.116.72)
+ssh -i "C:\Users\tsson\Downloads\cckey.pem" ec2-user@16.171.116.72
+
+# INSIDE VM1 - CREATE FILE
+touch file.txt
+echo "cloud computing file" > file.txt
+ls
+cat file.txt
+exit
+
+# COPY KEY FILE FROM LAPTOP TO VM1
+scp -i "C:\Users\tsson\Downloads\cckey.pem" "C:\Users\tsson\Downloads\cckey.pem" ec2-user@16.171.116.72:/home/ec2-user/
+
+# LOGIN AGAIN TO VM1
+ssh -i "C:\Users\tsson\Downloads\cckey.pem" ec2-user@16.171.116.72
+
+# INSIDE VM1 - GIVE KEY PERMISSION
+chmod 400 cckey.pem
+ls
+
+# TRANSFER FILE FROM VM1 TO VM2 (DESTINATION VM - 16.171.235.164)
+scp -i cckey.pem file.txt ec2-user@16.171.235.164:/home/ec2-user/
+exit
+
+# CONNECT TO VM2
+ssh -i "C:\Users\tsson\Downloads\cckey.pem" ec2-user@16.171.235.164
+
+# VERIFY FILE IN VM2
+ls
+cat file.txt
